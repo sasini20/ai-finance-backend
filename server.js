@@ -96,21 +96,28 @@ if (process.env.GEMINI_API_KEY) {
 
 const categorizeByRules = (title) => {
   const lowerTitle = title.toLowerCase();
+  
   if (lowerTitle.includes('salary') || lowerTitle.includes('income') || lowerTitle.includes('wage') || lowerTitle.includes('bonus')) {
     return { category: 'Salary', type: 'income' };
   }
-  if (lowerTitle.includes('food') || lowerTitle.includes('grocery') || lowerTitle.includes('restaurant') || lowerTitle.includes('meal')) {
+  
+  // මෙන්න මෙතැනට breakfast, dinner, soft drink සහ අනෙකුත් කෑම වර්ග එකතු කරන්න:
+  if (lowerTitle.includes('food') || lowerTitle.includes('lunch') || lowerTitle.includes('breakfast') || lowerTitle.includes('dinner') || lowerTitle.includes('drink') || lowerTitle.includes('grocery') || lowerTitle.includes('restaurant') || lowerTitle.includes('meal') || lowerTitle.includes('snack') || lowerTitle.includes('tea') || lowerTitle.includes('coffee')) {
     return { category: 'Food', type: 'expense' };
   }
+  
   if (lowerTitle.includes('transport') || lowerTitle.includes('uber') || lowerTitle.includes('taxi') || lowerTitle.includes('bus') || lowerTitle.includes('fuel')) {
     return { category: 'Transport', type: 'expense' };
   }
+  
   if (lowerTitle.includes('entertainment') || lowerTitle.includes('movie') || lowerTitle.includes('game') || lowerTitle.includes('netflix')) {
     return { category: 'Entertainment', type: 'expense' };
   }
+  
   if (lowerTitle.includes('utility') || lowerTitle.includes('electric') || lowerTitle.includes('water') || lowerTitle.includes('internet')) {
     return { category: 'Utilities', type: 'expense' };
   }
+  
   return { category: 'Other', type: 'expense' };
 };
 
