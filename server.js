@@ -83,6 +83,30 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
+// Reset/Change Password Route
+app.post('/api/auth/reset-password', async (req, res) => {
+  try {
+    const { email, oldPassword, newPassword } = req.body;
+    if (!email || !oldPassword || !newPassword) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) return res.status(400).json({ error: 'User not found with this email' });
+
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) return res.status(400).json({ error: 'Incorrect old password' });
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
+
+    res.json({ message: 'Password updated successfully! Please login with your new password.' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // --- Initialize Gemini AI ---
 let ai = null;
 if (process.env.GEMINI_API_KEY) {
@@ -168,7 +192,6 @@ app.post('/api/transactions', verifyToken, async (req, res) => {
   }
 });
 
-// Edit/Update transaction
 app.put('/api/transactions/:id', verifyToken, async (req, res) => {
   try {
     const { title, amount, category, type } = req.body;
