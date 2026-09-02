@@ -25,7 +25,7 @@ const transactionSchema = new mongoose.Schema({
 const Transaction = mongoose.model('Transaction', transactionSchema);
 
 // Initialize Gemini AI
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const ai = new GoogleGenAI(process.env.GEMINI_API_KEY);
 
 // AI Smart Categorization Route
 app.post('/api/ai-categorize', async (req, res) => {
@@ -33,17 +33,15 @@ app.post('/api/ai-categorize', async (req, res) => {
     const { title } = req.body;
     if (!title) return res.status(400).json({ error: 'Title is required' });
 
-    const prompt = `Analyze this transaction title: "${title}". 
+    const prompt = `Analyze this transaction title: "${title}".
     Classify it into one of these categories: Food, Transport, Salary, Entertainment, Utilities, Shopping, Health, Other.
     Also determine if it is 'income' or 'expense'.
     Return ONLY a valid JSON object in this exact format without any markdown formatting: {"category": "...", "type": "..."}`;
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-1.5-flash',
-      contents: prompt,
-    });
+    const model = ai.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const response = await model.generateContent(prompt);
 
-    let text = response.text.trim();
+    let text = response.response.text().trim();
     // Clean up markdown code blocks if present
     text = text.replace(/```json/g, '').replace(/```/g, '').trim();
     const result = JSON.parse(text);
