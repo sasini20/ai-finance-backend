@@ -101,7 +101,6 @@ const categorizeByRules = (title) => {
     return { category: 'Salary', type: 'income' };
   }
   
-  // මෙන්න මෙතැනට breakfast, dinner, soft drink සහ අනෙකුත් කෑම වර්ග එකතු කරන්න:
   if (lowerTitle.includes('food') || lowerTitle.includes('lunch') || lowerTitle.includes('breakfast') || lowerTitle.includes('dinner') || lowerTitle.includes('drink') || lowerTitle.includes('grocery') || lowerTitle.includes('restaurant') || lowerTitle.includes('meal') || lowerTitle.includes('snack') || lowerTitle.includes('tea') || lowerTitle.includes('coffee')) {
     return { category: 'Food', type: 'expense' };
   }
@@ -169,9 +168,25 @@ app.post('/api/transactions', verifyToken, async (req, res) => {
   }
 });
 
-app.delete('/api/transactions/:id', verifyToken, async (runReq, res) => {
+// Edit/Update transaction
+app.put('/api/transactions/:id', verifyToken, async (req, res) => {
   try {
-    await Transaction.findOneAndDelete({ _id: runReq.params.id, userId: runReq.user.userId });
+    const { title, amount, category, type } = req.body;
+    const updatedTx = await Transaction.findOneAndUpdate(
+      { _id: req.params.id, userId: req.user.userId },
+      { title, amount, category, type },
+      { new: true }
+    );
+    if (!updatedTx) return res.status(404).json({ error: 'Transaction not found' });
+    res.json(updatedTx);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete('/api/transactions/:id', verifyToken, async (req, res) => {
+  try {
+    await Transaction.findOneAndDelete({ _id: req.params.id, userId: req.user.userId });
     res.json({ message: 'Deleted successfully' });
   } catch (err) {
     res.status(500).json({ error: err.message });
