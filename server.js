@@ -39,7 +39,7 @@ app.post('/api/ai-categorize', async (req, res) => {
     Return ONLY a valid JSON object in this exact format without any markdown formatting: {"category": "...", "type": "..."}`;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-3.6-flash',
+      model: 'gemini-1.5-flash',
       contents: prompt,
     });
 
@@ -49,8 +49,9 @@ app.post('/api/ai-categorize', async (req, res) => {
     const result = JSON.parse(text);
     res.json(result);
   } catch (error) {
-    console.error('AI Error:', error);
-    res.status(500).json({ category: 'Other', type: 'expense' });
+    console.error('AI Error:', error.message);
+    console.error('Full error:', error);
+    res.status(500).json({ category: 'Other', type: 'expense', error: error.message });
   }
 });
 
